@@ -21,10 +21,6 @@ parser = argparse.ArgumentParser()
 
 
 parser.add_argument(
-    '--data_dir',
-    default="/workspace/Vitis-AI/src/vai_quantizer/vai_q_pytorch/example/ssd/data/",
-    help='Data set directory, when quant_mode=calib, it is for calibration, while quant_mode=test it is for evaluation')
-parser.add_argument(
     '--model_dir',
     default="/workspace/Vitis-AI/src/vai_quantizer/vai_q_pytorch/example/ssd/trained/",
     help='Trained model file path. Download pretrained model from the following url and put it in model_dir specified path: https://download.pytorch.org/models/resnet18-5c106cde.pth'
@@ -65,54 +61,9 @@ parser.add_argument('--target',
 args, _ = parser.parse_known_args()
 
 
-
-def load_data(train=True,
-              data_dir='/workspace/Vitis-AI/src/vai_quantizer/vai_q_pytorch/example/ssd/data/',
-              batch_size=32,
-              sample_method='random',
-              distributed=False,
-              **kwargs):
-
-  #prepare data
-  # random.seed(12345)
-  train_sampler = None
-
-  train_img_list, train_anno_list, val_img_list, val_anno_list=make_datapath_list(train_img_path="/home/ubuntu/Chipathon/train/ssd/data/COCO_data/train.txt", 
-                                                                                val_img_path="/home/ubuntu/Chipathon/train/ssd/data/COCO_data/val.txt")
-  
-  coco_classes = ['person','bicycle', 'car']
-  color_mean=(104, 117, 123) #TODO
-  input_size = 300
-
-  if train:
-    train_dataset = VOCDataset(train_img_list, train_anno_list, phase="train", transform=DataTransform(
-        input_size, color_mean), transform_anno=Anno_txt2list(coco_classes))
-
-    if distributed:
-      train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
-
-    dataloader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=(train_sampler is None), sampler=train_sampler, collate_fn=od_collate_fn)
-
-
-  else:
-    val_dataset = VOCDataset(val_img_list, val_anno_list, phase="val", transform=DataTransform(
-        input_size, color_mean), transform_anno=Anno_txt2list(coco_classes))
-
-    dataloader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=batch_size, shuffle=(train_sampler is None), sampler=train_sampler, collate_fn=od_collate_fn)
-  return dataloader, train_sampler
-
-
-
-
-
-
 def quantization(title='optimize',
-                 model_name='', 
+                 model_name='',   # TODO
                  file_path=''): 
-
-  data_dir = args.data_dir
   quant_mode = args.quant_mode
   deploy = args.deploy
   batch_size = args.batch_size
