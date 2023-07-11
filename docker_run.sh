@@ -78,7 +78,7 @@ docker_run_params=$(cat <<-END
     -v /opt/xilinx/overlaybins:/opt/xilinx/overlaybins \
     -e USER=$user -e UID=$uid -e GID=$gid \
     -v $DOCKER_RUN_DIR:/vitis_ai_home \
-    -v $HERE:/workspace \
+    -v ../../Chipathon:/workspace \
     -w /workspace \
     --rm \
     --network=host \
