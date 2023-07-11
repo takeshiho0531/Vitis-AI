@@ -53,6 +53,7 @@ parser.add_argument('--inspect',
     help='inspect model')
 
 parser.add_argument('--target', 
+    default='DPUCZDX8G',
     dest='target',
     nargs="?",
     const="",
@@ -128,3 +129,28 @@ def quantization(title='optimize',
     quantizer.export_torch_script()
     quantizer.export_onnx_model()
     quantizer.export_xmodel()
+
+if __name__ == '__main__':
+
+  model_name = 'ssd300'
+  file_path = os.path.join(args.model_dir, model_name + '.pth')
+
+  feature_test = ' float model evaluation'
+  if args.quant_mode != 'float':
+    feature_test = ' quantization'
+    # force to merge BN with CONV for better quantization accuracy
+    args.optimize = 1
+    feature_test += ' with optimization'
+  else:
+    feature_test = ' float model evaluation'
+  title = model_name + feature_test
+
+  print("-------- Start {} test ".format(model_name))
+
+  # calibration or evaluation
+  quantization(
+      title=title,
+      model_name=model_name,
+      file_path=file_path)
+
+  print("-------- End of {} test ".format(model_name))
